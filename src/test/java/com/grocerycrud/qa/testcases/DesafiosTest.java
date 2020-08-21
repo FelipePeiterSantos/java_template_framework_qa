@@ -28,10 +28,11 @@ public class DesafiosTest {
 
     @BeforeMethod
     public void setUpTest(Method testMethod){
+        testBase.initWebDriver();
         testBase.startTestReport(testMethod.getAnnotation(Test.class).testName());
     }
 
-    @Test(testName = "Desafio 1 - Cadastrar novo cliente com sucesso", priority = 1)
+    @Test(testName = "Desafio 1 - Cadastrar novo cliente com sucesso")
     public void cadastrarNovoClienteComSucesso() {
         homePage = new HomePage();
         addPage = new AddPage();
@@ -54,9 +55,10 @@ public class DesafiosTest {
         Assert.assertEquals(addPage.validateRegistrationReturnMessage(),"Your data has been successfully stored into the database. Edit Customer or Go back to list");
     }
 
-    @Test(testName = "Desafio 2 - Remover cadastro da lista de clientes com sucesso",
-            priority = 2, dependsOnMethods = {"cadastrarNovoClienteComSucesso"})
+    @Test(testName = "Desafio 2 - Remover cadastro da lista de clientes com sucesso")
 	public void removerCadastroCliente(){
+        cadastrarNovoClienteComSucesso();
+
         homePage = new HomePage();
         addPage = new AddPage();
 
@@ -83,11 +85,11 @@ public class DesafiosTest {
                 break;
         }
         testBase.endTestReport();
+        TestBase.driver.quit();
     }
 
     @AfterTest
     public void tearDownTestCase(){
         testBase.finalizeReport();
-        TestBase.driver.quit();
     }
 }

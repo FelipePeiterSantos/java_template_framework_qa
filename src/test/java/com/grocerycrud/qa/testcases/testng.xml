@@ -6,9 +6,4 @@
             <class name="com.grocerycrud.qa.testcases.DesafiosTest"></class>
         </classes>
     </test>
-    <test name="DesafiosSegundaOpcao">
-        <classes>
-            <class name="com.grocerycrud.qa.testcases.DesafiosSegundaOpcaoTest"></class>
-        </classes>
-    </test>
 </suite>
