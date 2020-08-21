@@ -12,38 +12,43 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class TestBase {
-	
-	public static WebDriver driver;
-	public static Properties prop;
+	public WebDriver driver;
+	public Properties prop;
+	public Logger logger;
+	public ExtentTest test;
 
-	private static ExtentReports extent;
-	private static ExtentTest test;
+	private ExtentReports extent;
+	private TestUtil testUtil;
 
-	public TestBase(){
-		try {
+	public void initialization(String runnerName) {
+		initProperties();
+		initReporter(runnerName);
+		initWebDriver();
+		testUtil = new TestUtil(this);
+	}
+
+	public void initProperties(){
+		try(FileInputStream fileInputStream = new FileInputStream(System.getProperty("user.dir")+ "/src/test/resources/config.properties")){
 			prop = new Properties();
-			FileInputStream fileInputStream = new FileInputStream(System.getProperty("user.dir")+ "/src/test/resources/config.properties");
 			prop.load(fileInputStream);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public void initReporter(ITestContext testContext){
-		extent = new ExtentReports(System.getProperty("user.dir") + "/target/" + testContext.getName()+ ".html", true);
+
+	public void initReporter(String runnerName){
+		extent = new ExtentReports(System.getProperty("user.dir") + "/target/" + runnerName+ ".html", true);
+		logger = Logger.getLogger(TestBase.class.getName());
 	}
 
 	public void initWebDriver(){
@@ -82,33 +87,35 @@ public class TestBase {
 	}
 
 	public void logInfo(String log){
-		System.out.println(log);
+		logger.info(log);
 		test.log(LogStatus.INFO,log);
 	}
 
 	public void logPass(String log){
-		System.out.println(log);
+		logger.info(log);
 		test.log(LogStatus.PASS,log);
 	}
 
 	public void logFail(String log){
-		System.out.println(log);
+		logger.info(log);
 		test.log(LogStatus.FAIL,log);
 	}
 
 	public void logPrint(String log){
 		logPrint(LogStatus.INFO,log);
 	}
+
 	public void logPrint(LogStatus status, String log){
-		System.out.println(log);
-		test.log(status,log+test.addScreenCapture(TestUtil.takeScreenshot()));
+		logger.info(log);
+		test.log(status,log+test.addScreenCapture(testUtil.takeScreenshot()));
 	}
 
 	public static void wait(int timeout){
 		try {
-			Thread.sleep(timeout*1000);
+			long timeoutInSecs = timeout*1000L;
+			Thread.sleep(timeoutInSecs);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 	}
 

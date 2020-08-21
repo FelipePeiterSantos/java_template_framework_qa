@@ -4,6 +4,7 @@
 	<test name="Desafios">
 		<classes>
 			<class name="com.grocerycrud.qa.testcases.runners.DesafiosTest"></class>
+			<class name="com.grocerycrud.qa.testcases.runners.Desafios2opcaoTest"></class>
 		</classes>
 	</test>
 </suite>

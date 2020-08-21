@@ -11,13 +11,18 @@ import org.openqa.selenium.TakesScreenshot;
 
 import com.grocerycrud.qa.base.TestBase;
 
-public class TestUtil extends TestBase {
+public class TestUtil {
+	private TestBase testBase;
 
-	public static long PAGE_LOAD_TIMEOUT = 20;
-	public static long IMPLICIT_WAIT = 5;
+	public static final long PAGE_LOAD_TIMEOUT = 20;
+	public static final long IMPLICIT_WAIT = 5;
 
-	public static String takeScreenshot()  {
-		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+	public TestUtil(TestBase testBase){
+		this.testBase = testBase;
+	}
+
+	public String takeScreenshot()  {
+		File scrFile = ((TakesScreenshot) testBase.driver).getScreenshotAs(OutputType.FILE);
 		String reportFolder = System.getProperty("user.dir")+"/target/";
 		String screenshotFolder = "imgs/";
 		String screenshotName = + System.currentTimeMillis() + ".png";

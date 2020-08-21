@@ -1,14 +1,23 @@
 package com.grocerycrud.qa.pages;
 
 import com.grocerycrud.qa.base.TestBase;
+import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
-public class HomePage extends TestBase {
+import java.util.logging.Logger;
+
+public class HomePage {
+    public void setTestBase(TestBase testBase) {
+        this.testBase = testBase;
+    }
+
+    private TestBase testBase;
 
     @FindBy(id = "switch-version-select")
     WebElement selectBootstrapVersion;
@@ -31,26 +40,27 @@ public class HomePage extends TestBase {
     @FindBy(css = "div.alert p")
     WebElement popupAlert;
 
-    public HomePage() {
-        PageFactory.initElements(driver, this);
+    public HomePage(TestBase testBase) {
+        PageFactory.initElements(testBase.driver, this);
+        this.testBase = testBase;
     }
 
     public HomePage selectBootstrapVs(String bootstrapVs) {
         new Select(selectBootstrapVersion).selectByVisibleText(bootstrapVs);
-        logPrint( "Selecionou versao ["+bootstrapVs+"]");
+        testBase.logPrint( "Selecionou versao ["+bootstrapVs+"]");
         return this;
     }
 
     public HomePage addNewCustomer() {
         btnAddCustomer.click();
-        logPrint( "Clicou em Add Customer");
+        testBase.logPrint( "Clicou em Add Customer");
         return this;
     }
 
     public HomePage filterCustomersByName(String customerName) {
         inputFilterName.sendKeys(customerName + Keys.ENTER);
-        wait(3);
-        logPrint( "Filtrou os consumidores por nome ["+customerName+"]");
+        TestBase.wait(3);
+        testBase.logPrint( "Filtrou os clientes por nome ["+customerName+"]");
         return this;
     }
 
@@ -59,12 +69,12 @@ public class HomePage extends TestBase {
         dropdownMore.click();
         btnDelete.click();
         btnConfirmDelete.click();
-        logPrint( "Deletou o consumidor filtrado");
+        testBase.logPrint( "Deletou o cliente filtrado");
     }
 
     public boolean returnMessageWhenDelete(String expectedMsg) {
-        String returnedMsg =  waitForElement(popupAlert,5).getText();
-        logPass("Apresentou a seguinte mensagem ao deletar consumidor:<br>"+returnedMsg);
+        String returnedMsg = testBase.waitForElement(popupAlert,5).getText();
+        testBase.logPass("Apresentou a seguinte mensagem ao deletar cliente:<br>"+returnedMsg);
         return expectedMsg.equals(returnedMsg);
     }
 }
