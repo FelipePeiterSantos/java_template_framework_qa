@@ -21,8 +21,8 @@ public class TestUtil {
 		this.testBase = testBase;
 	}
 
-	public String takeScreenshot()  {
-		File scrFile = ((TakesScreenshot) testBase.driver).getScreenshotAs(OutputType.FILE);
+	public static String takeScreenshot()  {
+		File scrFile = ((TakesScreenshot) TestBase.driver).getScreenshotAs(OutputType.FILE);
 		String reportFolder = System.getProperty("user.dir")+"/target/";
 		String screenshotFolder = "imgs/";
 		String screenshotName = + System.currentTimeMillis() + ".png";

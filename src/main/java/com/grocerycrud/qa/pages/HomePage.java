@@ -3,6 +3,7 @@ package com.grocerycrud.qa.pages;
 import com.grocerycrud.qa.base.TestBase;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,12 +13,7 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.util.logging.Logger;
 
-public class HomePage {
-    public void setTestBase(TestBase testBase) {
-        this.testBase = testBase;
-    }
-
-    private TestBase testBase;
+public class HomePage extends TestBase{
 
     @FindBy(id = "switch-version-select")
     WebElement selectBootstrapVersion;
@@ -40,27 +36,23 @@ public class HomePage {
     @FindBy(css = "div.alert p")
     WebElement popupAlert;
 
-    public HomePage(TestBase testBase) {
-        PageFactory.initElements(testBase.driver, this);
-        this.testBase = testBase;
+    public HomePage() {
+        PageFactory.initElements(driver, this);
     }
 
     public HomePage selectBootstrapVs(String bootstrapVs) {
         new Select(selectBootstrapVersion).selectByVisibleText(bootstrapVs);
-        testBase.logPrint( "Selecionou versao ["+bootstrapVs+"]");
         return this;
     }
 
     public HomePage addNewCustomer() {
         btnAddCustomer.click();
-        testBase.logPrint( "Clicou em Add Customer");
         return this;
     }
 
     public HomePage filterCustomersByName(String customerName) {
         inputFilterName.sendKeys(customerName + Keys.ENTER);
-        TestBase.wait(3);
-        testBase.logPrint( "Filtrou os clientes por nome ["+customerName+"]");
+        waitForElementVanish(By.className("loading-opacity"),15);
         return this;
     }
 
@@ -69,12 +61,9 @@ public class HomePage {
         dropdownMore.click();
         btnDelete.click();
         btnConfirmDelete.click();
-        testBase.logPrint( "Deletou o cliente filtrado");
     }
 
-    public boolean returnMessageWhenDelete(String expectedMsg) {
-        String returnedMsg = testBase.waitForElement(popupAlert,5).getText();
-        testBase.logPass("Apresentou a seguinte mensagem ao deletar cliente:<br>"+returnedMsg);
-        return expectedMsg.equals(returnedMsg);
+    public String returnMessageWhenDelete() {
+        return waitForElement(popupAlert,5).getText();
     }
 }

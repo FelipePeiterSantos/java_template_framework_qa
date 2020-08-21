@@ -1,18 +1,12 @@
 package com.grocerycrud.qa.pages;
 
 import com.grocerycrud.qa.base.TestBase;
-import com.relevantcodes.extentreports.ExtentTest;
-import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import java.util.logging.Logger;
-
-public class AddPage  {
-    private TestBase testBase;
+public class AddPage extends TestBase {
 
     @FindBy(id = "field-customerName")
     WebElement inputName;
@@ -56,54 +50,78 @@ public class AddPage  {
     @FindBy(css = "#field_salesRepEmployeeNumber_chosen input")
     WebElement inputSearchFromEmployeer;
 
-    @FindBy(id = "report-success")
-    WebElement msgSuccess;
-
-    @FindBy(id = "report-error")
-    WebElement msgError;
+    @FindBy(css = "#report-success")
+    WebElement returnMsgWhenSaving;
 
     @FindBy(linkText = "Go back to list")
     WebElement linkGoBackToList;
 
-    public AddPage(TestBase testBase) {
-        this.testBase = testBase;
-        PageFactory.initElements(testBase.driver, this);
+    public AddPage() {
+        PageFactory.initElements(driver, this);
     }
 
-    public AddPage fillCustomerForm(String name, String lastName, String contactFirstName, String phone,
-                                    String addressLine1, String addressLine2, String city, String state,
-                                    String postalCode, String country, String fromEmployeer, String creditLimit) {
-        testBase.waitForElement(inputName,5).sendKeys(name);
-        testBase.logInfo("Informou no campo NAME o valor ["+name+"]");
+    public AddPage fillInputName(String name) {
+        waitForElement(inputName,15).sendKeys(name);
+        return this;
+    }
+
+    public AddPage fillInputLastName(String lastName) {
         inputLastName.sendKeys(lastName);
-        testBase.logInfo("Informou no campo LAST NAME o valor ["+lastName+"]");
+        return this;
+    }
+
+    public AddPage fillInputContactFirstName(String contactFirstName) {
         inputContactFirstName.sendKeys(contactFirstName);
-        testBase.logInfo("Informou no campo CONTACT FIRST NAME o valor ["+contactFirstName+"]");
+        return this;
+    }
+
+    public AddPage fillInputPhone(String phone) {
         inputPhone.sendKeys(phone);
-        testBase.logInfo("Informou no campo PHONE o valor ["+phone+"]");
+        return this;
+    }
+
+    public AddPage fillInputAddressLine1(String addressLine1) {
         inputAddressLine1.sendKeys(addressLine1);
-        testBase.logInfo("Informou no campo ADDRESS LINE 1 o valor ["+addressLine1+"]");
+        return this;
+    }
+
+    public AddPage fillInputAddressLine2(String addressLine2) {
         inputAddressLine2.sendKeys(addressLine2);
-        testBase.logInfo("Informou no campo ADDRESS LINE 2 o valor ["+addressLine2+"]");
+        return this;
+    }
+
+    public AddPage fillInputCity(String city) {
         inputCity.sendKeys(city);
-        testBase.logInfo("Informou no campo CITY o valor ["+city+"]");
+        return this;
+    }
+
+    public AddPage fillInputState(String state) {
         inputState.sendKeys(state);
-        testBase.logInfo("Informou no campo STATE o valor ["+state+"]");
+        return this;
+    }
+
+    public AddPage fillInputPostalCode(String postalCode) {
         inputPostalCode.sendKeys(postalCode);
-        testBase.logInfo("Informou no campo POSTALCODE o valor ["+postalCode+"]");
+        return this;
+    }
+
+    public AddPage fillInputCountry(String country) {
         inputCountry.sendKeys(country);
-        testBase.logInfo("Informou no campo COUNTRY o valor ["+country+"]");
+        return this;
+    }
+
+    public AddPage selectOptionFromEmployeer(String fromEmployeer) {
         setClickFromEmployeer(fromEmployeer);
-        testBase.logInfo("Informou no campo FROM EMPLOYEER o valor ["+fromEmployeer+"]");
+        return this;
+    }
+
+    public AddPage fillCreditLimit(String creditLimit) {
         inputCreditLimit.sendKeys(creditLimit);
-        testBase.logInfo("Informou no campo CREDIT LIMIT o valor ["+creditLimit+"]");
-        testBase.logPrint( "Informou todos os campos do formulario");
         return this;
     }
 
     public AddPage saveForm() {
         btnSave.click();
-        testBase.logInfo("Clicou em salvar formulario");
         return this;
     }
 
@@ -112,33 +130,12 @@ public class AddPage  {
         inputSearchFromEmployeer.sendKeys(fromEmployeer+Keys.ENTER);
     }
 
-    public boolean validateRegistrationReturnMessage(String expectedMsg) {
-        String returnedMsg = returnMessageWhenSaving();
-        boolean condition = returnedMsg.equals(expectedMsg);
-        if(condition)
-            testBase.logPrint(LogStatus.PASS,"Apresentou a seguinte mensagem ao cadastrar um novo cliente:<br>"+returnedMsg);
-        else
-            testBase.logPrint(LogStatus.FAIL,"Apresentou mensagem diferente do esperado<br><b>Esperado:<b> "+expectedMsg+"<br><b>Retorno:<b> "+returnedMsg);
-        return condition;
-    }
-
-    private String returnMessageWhenSaving() {
-        for (int i = 0; i < 10; i++) {
-            if(msgSuccess.isDisplayed())
-                return msgSuccess.getText();
-            else if(msgError.isDisplayed())
-                return msgError.getText();
-            else {
-                TestBase.wait(1);
-            }
-        }
-        testBase.logFail("Nao retornou mensagem na tela ao salvar");
-        return "";
+    public String validateRegistrationReturnMessage() {
+        return waitForElement(returnMsgWhenSaving, 10).getText();
     }
 
     public void goBackToCustomersList(HomePage homePage) {
         linkGoBackToList.click();
-        testBase.waitForElement(homePage.btnAddCustomer,10);
-        testBase.logPrint( "Voltou para a lista de clientes");
+        waitForElement(homePage.btnAddCustomer,10);
     }
 }

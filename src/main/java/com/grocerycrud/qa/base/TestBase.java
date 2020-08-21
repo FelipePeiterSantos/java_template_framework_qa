@@ -5,34 +5,36 @@ import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.jsoup.select.Collector;
+import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
+import org.openqa.selenium.support.ui.*;
+import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class TestBase {
-	public WebDriver driver;
+	public static WebDriver driver;
+	public static ExtentReports extentReports;
+	public static ExtentTest extentTest;
+
 	public Properties prop;
 	public Logger logger;
-	public ExtentTest test;
 
-	private ExtentReports extent;
 	private TestUtil testUtil;
 
-	public void initialization(String runnerName) {
+	public void initialize(ITestContext testContext) {
 		initProperties();
-		initReporter(runnerName);
+		initReporter(testContext.getName());
 		initWebDriver();
 		testUtil = new TestUtil(this);
 	}
@@ -47,12 +49,13 @@ public class TestBase {
 	}
 
 	public void initReporter(String runnerName){
-		extent = new ExtentReports(System.getProperty("user.dir") + "/target/" + runnerName+ ".html", true);
+		extentReports = new ExtentReports(System.getProperty("user.dir") + "/target/" + runnerName+ ".html", true);
 		logger = Logger.getLogger(TestBase.class.getName());
 	}
 
 	public void initWebDriver(){
 		String browser = prop.getProperty("browser");
+
 		if ("chrome".equals(browser)) {
 			WebDriverManager.chromedriver().setup();
 			driver = new ChromeDriver();
@@ -62,8 +65,7 @@ public class TestBase {
 			driver = new FirefoxDriver();
 		}
 		else {
-			logFail("Navegador informado nao possui suporte");
-			Assert.assertTrue(false,"Navegador informado nao possui suporte");
+			throw new AssertionError("Navegador informado nao possui suporte");
 		}
 
 		driver.manage().window().maximize();
@@ -74,53 +76,46 @@ public class TestBase {
 		driver.get(prop.getProperty("url"));
 		
 	}
-	public void startTestReport(Method testMethod){
-		test = extent.startTest(testMethod.getAnnotation(Test.class).testName());
+
+	public void startTestReport(String testName){
+		extentTest = extentReports.startTest(testName);
 	}
 	public void endTestReport(){
-		extent.endTest(test);
+		extentReports.endTest(extentTest);
 	}
 
 	public void finalizeReport(){
-		extent.flush();
-		extent.close();
+		extentReports.flush();
+		extentReports.close();
 	}
 
-	public void logInfo(String log){
+	public static void logPrint(String log){
+		extentTest.log(LogStatus.FAIL,log+extentTest.addScreenCapture(TestUtil.takeScreenshot()));
+	}
+
+	public void log(LogStatus status, String log){
 		logger.info(log);
-		test.log(LogStatus.INFO,log);
-	}
-
-	public void logPass(String log){
-		logger.info(log);
-		test.log(LogStatus.PASS,log);
-	}
-
-	public void logFail(String log){
-		logger.info(log);
-		test.log(LogStatus.FAIL,log);
-	}
-
-	public void logPrint(String log){
-		logPrint(LogStatus.INFO,log);
-	}
-
-	public void logPrint(LogStatus status, String log){
-		logger.info(log);
-		test.log(status,log+test.addScreenCapture(testUtil.takeScreenshot()));
-	}
-
-	public static void wait(int timeout){
-		try {
-			long timeoutInSecs = timeout*1000L;
-			Thread.sleep(timeoutInSecs);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		extentTest.log(status,log);
 	}
 
 	public WebElement waitForElement(WebElement element, int timeoutInSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 		return wait.until(ExpectedConditions.visibilityOf(element));
+	}
+
+	public Boolean waitForElementVanish(By inputFilterName, int timeoutInSeconds) {
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
+				.pollingEvery(1,TimeUnit.NANOSECONDS)
+				.withTimeout(3, TimeUnit.SECONDS);
+		try {
+			wait.until(ExpectedConditions.visibilityOfElementLocated(inputFilterName));
+		} catch (TimeoutException | NoSuchElementException e) {
+			return true;
+		}
+		wait = new FluentWait<WebDriver>(driver)
+				.pollingEvery(1,TimeUnit.NANOSECONDS)
+				.withTimeout(timeoutInSeconds, TimeUnit.SECONDS);
+
+		return wait.until(ExpectedConditions.invisibilityOfElementLocated(inputFilterName));
 	}
 }

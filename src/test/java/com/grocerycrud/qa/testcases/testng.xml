@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Assessment - Avenue Code">
-	<test name="Desafios">
-		<classes>
-			<class name="com.grocerycrud.qa.testcases.runners.DesafiosTest"></class>
-			<class name="com.grocerycrud.qa.testcases.runners.Desafios2opcaoTest"></class>
-		</classes>
-	</test>
+    <test name="Desafios">
+        <classes>
+            <class name="com.grocerycrud.qa.testcases.DesafiosTest"></class>
+        </classes>
+    </test>
+    <test name="DesafiosSegundaOpcao">
+        <classes>
+            <class name="com.grocerycrud.qa.testcases.DesafiosSegundaOpcaoTest"></class>
+        </classes>
+    </test>
 </suite>
